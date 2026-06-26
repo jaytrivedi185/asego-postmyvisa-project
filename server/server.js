@@ -4,7 +4,7 @@ const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 3001;
 const TARGET = process.env.TARGET || 'https://dolphin.asego.in';
-const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:5173,http://localhost:3000')
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:5173,http://localhost:3000,https://insurance.postmyvisa.com,https://www.insurance.postmyvisa.com')
   .split(',')
   .map((origin) => origin.trim())
   .filter(Boolean);
