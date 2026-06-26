@@ -5,15 +5,15 @@ export default {
     extend: {
       colors: {
         navy: {
-          DEFAULT: 'rgba(11, 28, 49, 1)',
-          light: 'rgba(11, 28, 49, 0.85)',
-          muted: 'rgba(11, 28, 49, 0.5)',
-          subtle: 'rgba(11, 28, 49, 0.08)',
+          DEFAULT: '#002962',
+          light: '#f5f8ff',
+          muted: 'rgba(0, 41, 98, 0.65)',
+          subtle: 'rgba(0, 41, 98, 0.08)',
         },
         gold: {
-          DEFAULT: 'rgba(250, 199, 77, 1)',
-          light: 'rgba(250, 199, 77, 0.2)',
-          hover: 'rgba(250, 199, 77, 0.85)',
+          DEFAULT: '#f2c45a',
+          light: 'rgba(242, 196, 90, 0.16)',
+          hover: '#e7b84e',
         },
       },
     },

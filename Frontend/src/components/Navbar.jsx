@@ -101,7 +101,7 @@ const Navbar = () => {
   const currentStep = getCurrentStep();
 
   return (
-    <nav className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border-b border-white/10 sticky top-0 z-50 backdrop-blur-xl shadow-lg">
+    <nav className="bg-[linear-gradient(90deg,_#ffffff_0%,_#f7faff_100%)] border-b border-[rgba(0,41,98,0.12)] sticky top-0 z-50 backdrop-blur-xl shadow-[0_8px_24px_rgba(0,41,98,0.06)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           
@@ -114,7 +114,7 @@ const Navbar = () => {
               <img
                 src="/Postmyvisa-LOGO-PNG-scaled.png"
                 alt="Postmyvisa Logo"
-                className="h-12 w-auto object-contain drop-shadow-lg"
+                className="h-9 sm:h-11 w-auto object-contain drop-shadow-lg"
               />
             </button>
           </div>
@@ -134,9 +134,9 @@ const Navbar = () => {
                     className={`
                       group relative flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-300
                       ${isActive 
-                        ? 'bg-gradient-to-r from-amber-500/20 to-amber-600/20 border border-amber-500/40' 
+                        ? 'bg-gold/15 border border-gold/40' 
                         : isCompleted
-                        ? 'hover:bg-white/5 cursor-pointer'
+                        ? 'hover:bg-[rgba(0,41,98,0.04)] cursor-pointer'
                         : 'opacity-50 cursor-not-allowed'
                       }
                     `}
@@ -146,10 +146,10 @@ const Navbar = () => {
                       className={`
                         flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300
                         ${isActive
-                          ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/50'
+                          ? 'bg-gold text-navy shadow-lg shadow-[rgba(242,196,90,0.35)]'
                           : isCompleted
-                          ? 'bg-green-500/20 text-green-400 border border-green-500/40'
-                          : 'bg-white/5 text-white/40 border border-white/10'
+                          ? 'bg-green-500/10 text-green-600 border border-green-500/20'
+                          : 'bg-[rgba(0,41,98,0.04)] text-[rgba(0,41,98,0.55)] border border-[rgba(0,41,98,0.10)]'
                         }
                       `}
                     >
@@ -170,10 +170,10 @@ const Navbar = () => {
                         className={`
                           text-xs font-semibold transition-colors duration-300
                           ${isActive
-                            ? 'text-amber-400'
+                            ? 'text-gold'
                             : isCompleted
-                            ? 'text-white/80'
-                            : 'text-white/40'
+                            ? 'text-[rgba(0,41,98,0.8)]'
+                            : 'text-[rgba(0,41,98,0.55)]'
                           }
                         `}
                       >
@@ -183,7 +183,7 @@ const Navbar = () => {
 
                     {/* Active Indicator */}
                     {isActive && (
-                      <div className="absolute -bottom-[21px] left-1/2 -translate-x-1/2 w-full h-1 bg-gradient-to-r from-transparent via-amber-500 to-transparent" />
+                      <div className="absolute -bottom-[21px] left-1/2 -translate-x-1/2 w-full h-1 bg-gradient-to-r from-transparent via-gold to-transparent" />
                     )}
                   </button>
 
@@ -203,19 +203,19 @@ const Navbar = () => {
           {/* Mobile Progress Indicator */}
           <div className="flex lg:hidden items-center gap-3">
             <div className="flex items-center gap-2">
-              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-amber-500 text-white font-bold shadow-lg shadow-amber-500/30">
+              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gold text-navy font-bold shadow-lg shadow-[rgba(242,196,90,0.3)]">
                 {currentStep}
               </div>
               <div className="flex flex-col">
-                <span className="text-xs text-white/50 font-medium">Step</span>
-                <span className="text-sm text-amber-400 font-semibold">{currentStep} of 7</span>
+                <span className="text-xs text-[rgba(0,41,98,0.55)] font-medium">Step</span>
+                <span className="text-sm text-gold font-semibold">{currentStep} of 7</span>
               </div>
             </div>
             
             {/* Progress Bar */}
-            <div className="w-24 h-2 bg-white/10 rounded-full overflow-hidden">
+            <div className="w-24 h-2 bg-[rgba(0,41,98,0.08)] rounded-full overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-amber-500 to-amber-600 transition-all duration-500 ease-out"
+                className="h-full bg-gradient-to-r from-gold to-[#e8b94e] transition-all duration-500 ease-out"
                 style={{ width: `${(currentStep / 7) * 100}%` }}
               />
             </div>
@@ -235,10 +235,10 @@ const Navbar = () => {
                   className={`
                     flex-shrink-0 px-2 py-1 rounded-md text-xs font-medium transition-all duration-300
                     ${isActive
-                      ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40'
+                      ? 'bg-gold/15 text-gold border border-gold/30'
                       : isCompleted
-                      ? 'bg-green-500/10 text-green-400'
-                      : 'bg-white/5 text-white/30'
+                      ? 'bg-green-500/10 text-green-600'
+                      : 'bg-[rgba(0,41,98,0.04)] text-[rgba(0,41,98,0.55)]'
                     }
                   `}
                 >
@@ -252,7 +252,7 @@ const Navbar = () => {
 
       {/* Ambient Glow Effect */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-b from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[rgba(242,196,90,0.08)] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       </div>
     </nav>
   );

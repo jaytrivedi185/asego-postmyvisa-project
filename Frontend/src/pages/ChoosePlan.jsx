@@ -95,7 +95,6 @@ export default function ChoosePlan() {
     try {
       const data = await getSellingPlans(PARTNER_ID);
       const all = data.sellingPlanDto || [];
-      console.log('All plans:', all);
       setBasePlans(all);
     } catch {
       setError('Unable to load plans. Please try again.');
@@ -177,36 +176,36 @@ export default function ChoosePlan() {
   };
 
   return (
-    <div className="min-h-screen bg-navy flex flex-col">
+    <div className="min-h-screen bg-white flex flex-col">
 
       {/* Navbar */}
       <Navbar />
 
       {/* ── Hero band ── */}
-      <div className="relative bg-navy-light border-b border-white/10 overflow-hidden shrink-0">
+      <div className="relative bg-[rgba(245,248,255,1)] border-b border-[rgba(0,41,98,0.12)] overflow-hidden shrink-0">
         <div className="absolute inset-0 pointer-events-none"
           style={{ background: 'radial-gradient(600px circle at 85% 0%, rgba(250,199,77,0.06), transparent 70%)' }} />
         <div className="relative max-w-6xl mx-auto px-6 py-9">
           <button onClick={() => navigate(-1)}
-            className="flex items-center gap-1.5 text-white/35 hover:text-gold text-xs font-medium mb-4 transition-colors">
+            className="flex items-center gap-1.5 text-[rgba(0,41,98,0.6)] hover:text-gold text-xs font-medium mb-4 transition-colors">
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
             </svg>
             Back
           </button>
           <p className="text-gold text-xs font-semibold uppercase tracking-widest mb-2">Choose Your Plan</p>
-          <h1 className="text-3xl sm:text-4xl font-bold text-white leading-tight">
+          <h1 className="text-3xl sm:text-4xl font-bold text-[rgba(0,41,98,1)] leading-tight">
             {destinationCountry
               ? <>Plans for <span className="text-gold">{destinationCountry}</span></>
               : 'Available Plans'}
           </h1>
-          <p className="text-white/40 mt-2 text-sm max-w-xl">
+          <p className="text-[rgba(0,41,98,0.65)] mt-2 text-sm max-w-xl">
             Compare and select the best insurance plan for your trip.
           </p>
           {!loading && !error && (
             <div className="inline-flex items-center gap-2 mt-4 bg-white/5 border border-white/10 rounded-full px-4 py-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse" />
-              <span className="text-white/55 text-xs font-medium">
+              <span className="text-[rgba(0,41,98,0.65)] text-xs font-medium">
                 {displayPlans.length} of {basePlans.length} plan{basePlans.length !== 1 ? 's' : ''}
               </span>
             </div>
@@ -218,12 +217,12 @@ export default function ChoosePlan() {
 
         {/* ── Filters bar ── */}
         {!loading && !error && basePlans.length > 0 && (
-          <div className="mb-8 p-5 rounded-2xl border border-white/8 bg-white/[0.025]">
+          <div className="mb-8 p-5 rounded-2xl border border-[rgba(0,41,98,0.10)] bg-[rgba(255,255,255,0.95)]">
             <div className="flex flex-wrap gap-y-4 gap-x-6">
 
               {/* Insurer */}
               <div className="flex flex-col gap-2 min-w-0">
-                <p className="text-white/30 text-[10px] uppercase tracking-widest font-semibold">Insurer</p>
+                <p className="text-[rgba(0,41,98,0.55)] text-[10px] uppercase tracking-widest font-semibold">Insurer</p>
                 <div className="flex flex-wrap gap-1.5">
                   {insurerOptions.map(opt => (
                     <FilterPill key={opt} active={filterInsurer === opt} onClick={() => setFilterInsurer(opt)}>
@@ -236,7 +235,7 @@ export default function ChoosePlan() {
               {/* Plan Type */}
               {planTypeOptions.length > 2 && (
                 <div className="flex flex-col gap-2 min-w-0">
-                  <p className="text-white/30 text-[10px] uppercase tracking-widest font-semibold">Plan Type</p>
+                  <p className="text-[rgba(0,41,98,0.55)] text-[10px] uppercase tracking-widest font-semibold">Plan Type</p>
                   <div className="flex flex-wrap gap-1.5">
                     {planTypeOptions.map(opt => (
                       <FilterPill key={opt} active={filterPlanType === opt} onClick={() => setFilterPlanType(opt)}>
@@ -250,7 +249,7 @@ export default function ChoosePlan() {
               {/* Sum Insured */}
               {sumInsuredOptions.length > 2 && (
                 <div className="flex flex-col gap-2 min-w-0">
-                  <p className="text-white/30 text-[10px] uppercase tracking-widest font-semibold">Sum Insured</p>
+                  <p className="text-[rgba(0,41,98,0.55)] text-[10px] uppercase tracking-widest font-semibold">Sum Insured</p>
                   <div className="flex flex-wrap gap-1.5">
                     {sumInsuredOptions.map(opt => (
                       <FilterPill key={opt} active={filterSumInsured === opt} onClick={() => setFilterSumInsured(opt)}>

@@ -13,7 +13,7 @@ const EndorseSuccess = () => {
   } = location.state || {};
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="min-h-screen bg-[linear-gradient(135deg,_#ffffff_0%,_#f7faff_100%)]">
       <Navbar />
       
       <div className="py-12 px-4">
@@ -109,7 +109,7 @@ const EndorseSuccess = () => {
             </button>
             <button
               onClick={() => navigate('/endorse-policy')}
-              className="flex-1 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-semibold transition-all shadow-lg shadow-amber-500/25"
+              className="flex-1 py-3 rounded-xl bg-gold text-navy font-semibold transition-all shadow-lg shadow-[rgba(242,196,90,0.25)]"
             >
               Endorse Another Policy
             </button>

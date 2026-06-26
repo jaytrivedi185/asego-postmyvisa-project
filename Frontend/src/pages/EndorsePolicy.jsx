@@ -161,7 +161,7 @@ const EndorsePolicy = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="min-h-screen bg-[linear-gradient(135deg,_#ffffff_0%,_#f7faff_100%)]">
       <Navbar />
       
       <div className="py-8 px-4">
@@ -170,7 +170,7 @@ const EndorsePolicy = () => {
           <div className="mb-8">
             <button
               onClick={() => step === 1 ? navigate('/') : setStep(step - 1)}
-              className="flex items-center gap-2 text-white/60 hover:text-amber-500 transition-colors mb-4"
+              className="flex items-center gap-2 text-[rgba(0,41,98,0.65)] hover:text-gold transition-colors mb-4"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -417,7 +417,7 @@ const EndorsePolicy = () => {
                   className={`w-full py-4 rounded-xl font-semibold text-lg transition-all duration-300 ${
                     isProcessing
                       ? 'bg-white/5 text-white/30 cursor-not-allowed'
-                      : 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white shadow-lg shadow-amber-500/25'
+                      : 'bg-gold text-navy shadow-lg shadow-[rgba(242,196,90,0.25)]'
                   }`}
                 >
                   {isProcessing ? (

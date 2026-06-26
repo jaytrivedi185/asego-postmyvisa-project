@@ -1,11 +1,11 @@
 // TravelerFormCard.jsx — one card per traveller
 
 export const inputCls = (err) =>
-  `w-full bg-white/[0.05] border rounded-xl px-4 py-3 text-white text-sm placeholder-white/25
+  `w-full bg-[rgba(0,41,98,0.03)] border rounded-xl px-4 py-3 text-[rgba(0,41,98,0.95)] text-sm placeholder-[rgba(0,41,98,0.28)]
    outline-none transition-colors duration-150
    ${err
      ? 'border-red-500/60 focus:border-red-400/80'
-     : 'border-white/10 focus:border-gold/60 focus:bg-white/[0.07]'}`;
+     : 'border-[rgba(0,41,98,0.12)] focus:border-gold/60 focus:bg-[rgba(0,41,98,0.05)]'}`;
 
 export const FieldError = ({ msg }) =>
   msg ? (
@@ -18,7 +18,7 @@ export const FieldError = ({ msg }) =>
   ) : null;
 
 export const Label = ({ children, required }) => (
-  <label className="block text-white/45 text-[10px] font-semibold uppercase tracking-widest mb-1.5">
+  <label className="block text-[rgba(0,41,98,0.65)] text-[10px] font-semibold uppercase tracking-widest mb-1.5">
     {children}{required && <span className="text-gold ml-0.5">*</span>}
   </label>
 );
@@ -32,17 +32,17 @@ export default function TravelerFormCard({ index, data, errors, onChange }) {
   const handle = (field, val) => onChange(index, field, val);
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.03] overflow-hidden">
+    <div className="rounded-2xl border border-[rgba(0,41,98,0.12)] bg-white overflow-hidden">
       {/* Card header */}
       <div
-        className="flex items-center gap-3 px-6 py-4 border-b border-white/8"
-        style={{ background: 'linear-gradient(135deg, rgba(250,199,77,0.07) 0%, transparent 60%)' }}
+        className="flex items-center gap-3 px-6 py-4 border-b border-[rgba(0,41,98,0.08)]"
+        style={{ background: 'linear-gradient(135deg, rgba(242,196,90,0.15) 0%, transparent 60%)' }}
       >
         <div className="w-8 h-8 rounded-xl bg-gold/15 border border-gold/25 flex items-center justify-center shrink-0">
           <span className="text-gold font-bold text-sm">T{index + 1}</span>
         </div>
         <div>
-          <p className="text-white font-bold text-sm">Traveller {index + 1}</p>
+          <p className="text-[rgba(0,41,98,1)] font-bold text-sm">Traveller {index + 1}</p>
           {data.dob && (
             <p className="text-white/35 text-xs mt-0.5">
               DOB: {fmtDob(data.dob)}&nbsp;·&nbsp;Age: {data.age} yrs
@@ -122,7 +122,7 @@ export default function TravelerFormCard({ index, data, errors, onChange }) {
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-semibold transition-all
                   ${data.gender === g
                     ? 'bg-gold text-navy border-gold'
-                    : 'bg-white/[0.04] text-white/60 border-white/10 hover:border-gold/40 hover:text-gold'}`}
+                    : 'bg-[rgba(0,41,98,0.04)] text-[rgba(0,41,98,0.7)] border-[rgba(0,41,98,0.10)] hover:border-gold/40 hover:text-gold'}`}
               >
                 <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0
                   ${data.gender === g ? 'border-navy' : 'border-white/30'}`}>

@@ -69,14 +69,14 @@ export default function PlanCard({ plan, isSelected, onViewDetails, onBuyNow }) 
 
   return (
     <div
-      className={`relative flex flex-col rounded-2xl border transition-all duration-200 overflow-hidden group hover:-translate-y-1
+      className={`relative flex flex-col rounded-2xl border transition-all duration-200 overflow-hidden group hover:-translate-y-1 bg-white
         ${isSelected
-          ? 'border-gold bg-gold/5 shadow-xl shadow-gold/10'
-          : 'border-white/10 bg-white/[0.03] hover:border-gold/40 hover:bg-white/[0.05] hover:shadow-lg hover:shadow-black/40'}`}
+          ? 'border-gold shadow-xl shadow-[rgba(0,41,98,0.08)]'
+          : 'border-[rgba(0,41,98,0.12)] hover:border-gold/40 hover:bg-[rgba(245,248,255,0.85)] hover:shadow-lg hover:shadow-[rgba(0,41,98,0.06)]'}`}
     >
       {/* Top accent bar */}
       <div className={`h-[3px] w-full transition-colors duration-200
-        ${isSelected ? 'bg-gold' : 'bg-white/10 group-hover:bg-gold/50'}`} />
+        ${isSelected ? 'bg-gold' : 'bg-[rgba(0,41,98,0.10)] group-hover:bg-gold/50'}`} />
 
       <div className="flex flex-col flex-1 p-6">
 
@@ -88,8 +88,8 @@ export default function PlanCard({ plan, isSelected, onViewDetails, onBuyNow }) 
               <ShieldIcon />
             </div>
             <div className="min-w-0">
-              <p className="text-white/35 text-[10px] uppercase tracking-widest font-semibold">Insurer</p>
-              <p className="text-white/80 text-xs font-semibold leading-tight mt-0.5 truncate">
+              <p className="text-[rgba(0,41,98,0.55)] text-[10px] uppercase tracking-widest font-semibold">Insurer</p>
+              <p className="text-[rgba(0,41,98,0.85)] text-xs font-semibold leading-tight mt-0.5 truncate">
                 {plan.insurerName}
               </p>
             </div>
@@ -105,15 +105,15 @@ export default function PlanCard({ plan, isSelected, onViewDetails, onBuyNow }) 
         </div>
 
         {/* ── Plan name ── */}
-        <h3 className={`text-lg font-bold leading-snug mb-1 ${isSelected ? 'text-gold' : 'text-white'}`}>
+        <h3 className={`text-lg font-bold leading-snug mb-1 ${isSelected ? 'text-gold' : 'text-[rgba(0,41,98,1)]'}`}>
           {plan.planDisplayName}
         </h3>
-        <p className="text-white/45 text-sm mb-4 leading-snug">{plan.planName}</p>
+        <p className="text-[rgba(0,41,98,0.65)] text-sm mb-4 leading-snug">{plan.planName}</p>
 
         {/* ── Region tag ── */}
-        <div className="flex items-center gap-1.5 bg-white/[0.04] border border-white/10 rounded-full px-3 py-1.5 self-start mb-5">
+        <div className="flex items-center gap-1.5 bg-[rgba(0,41,98,0.04)] border border-[rgba(0,41,98,0.10)] rounded-full px-3 py-1.5 self-start mb-5">
           <GlobeIcon />
-          <span className="text-white/50 text-[11px] font-medium truncate max-w-[180px]">
+          <span className="text-[rgba(0,41,98,0.65)] text-[11px] font-medium truncate max-w-[180px]">
             {plan.geographicalAreaName}
           </span>
         </div>
@@ -126,19 +126,19 @@ export default function PlanCard({ plan, isSelected, onViewDetails, onBuyNow }) 
           {premium != null ? (
             <div className="flex items-end justify-between">
               <div>
-                <p className="text-white/35 text-[10px] uppercase tracking-widest font-semibold mb-1">
+                <p className="text-[rgba(0,41,98,0.55)] text-[10px] uppercase tracking-widest font-semibold mb-1">
                   Total Premium
                 </p>
-                <p className={`text-2xl font-bold ${isSelected ? 'text-gold' : 'text-white'}`}>
+                <p className={`text-2xl font-bold ${isSelected ? 'text-gold' : 'text-[rgba(0,41,98,1)]'}`}>
                   ₹{premium.toLocaleString('en-IN')}
                 </p>
               </div>
-              <span className="text-white/30 text-[10px] font-medium">incl. taxes</span>
+              <span className="text-[rgba(0,41,98,0.55)] text-[10px] font-medium">incl. taxes</span>
             </div>
           ) : (
             <div>
-              <p className="text-white/35 text-[10px] uppercase tracking-widest font-semibold mb-1">Premium</p>
-              <p className="text-white/40 text-sm font-medium">Fill trip details to view</p>
+              <p className="text-[rgba(0,41,98,0.55)] text-[10px] uppercase tracking-widest font-semibold mb-1">Premium</p>
+              <p className="text-[rgba(0,41,98,0.65)] text-sm font-medium">Fill trip details to view</p>
             </div>
           )}
         </div>
@@ -149,17 +149,17 @@ export default function PlanCard({ plan, isSelected, onViewDetails, onBuyNow }) 
         <div className="flex gap-2.5">
           <button
             onClick={() => onViewDetails(plan)}
-            className="flex-1 py-2.5 rounded-xl text-sm font-semibold border border-white/15 text-white/65
+            className="flex-1 py-2.5 rounded-xl text-sm font-semibold border border-[rgba(0,41,98,0.16)] text-[rgba(0,41,98,0.7)]
               hover:border-gold/50 hover:text-gold hover:bg-gold/5 transition-all duration-150"
           >
             View Details
           </button>
           <button
             onClick={() => onBuyNow(plan)}
-            className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150
+            className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 border
               ${isSelected
-                ? 'bg-gold text-navy'
-                : 'bg-gold/10 text-gold border border-gold/20 hover:bg-gold hover:text-navy'}`}
+                ? 'bg-gold text-navy border-gold shadow-sm'
+                : 'bg-[rgba(0,41,98,0.04)] text-[rgba(0,41,98,0.85)] border-[rgba(0,41,98,0.16)] hover:bg-gold hover:text-navy hover:border-gold'}`}
           >
             Buy Now
           </button>

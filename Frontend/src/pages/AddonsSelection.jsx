@@ -153,7 +153,6 @@ export default function AddonsSelection() {
         : [...prev, rider];  // Add if not selected
       
       sessionStorage.setItem('selectedRiders', JSON.stringify(next));
-      console.log('Updated selectedRiders:', next.map(r => r.riderName)); // Debug log
       return next;
     });
   };
@@ -161,9 +160,7 @@ export default function AddonsSelection() {
   const handleContinue = () => {
     // Ensure only valid selected riders are passed
     const validSelectedRiders = selectedRiders.filter(r => r && r.riderId);
-    
-    console.log('Navigating with selectedRiders:', validSelectedRiders.map(r => r.riderName));
-    
+
     navigate('/traveler-details', {
       state: {
         selectedPlan,
