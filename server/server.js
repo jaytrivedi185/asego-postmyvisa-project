@@ -65,7 +65,6 @@ app.use(express.text({ type: 'text/plain' }));
 // Log all requests
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-  console.log('Headers:', JSON.stringify(req.headers, null, 2));
   next();
 });
 
@@ -114,14 +113,11 @@ const proxy = createProxyMiddleware({
       // Write body to proxy request
       proxyReq.write(bodyData);
       
-      console.log('Proxying request body:', bodyData.substring(0, 200));
+
     }
   },
   
-  // Log response from ASEGO API
-  onProxyRes: (proxyRes, req, res) => {
-    console.log(`Response from ASEGO: ${proxyRes.statusCode}`);
-  },
+  onProxyRes: (proxyRes, req, res) => {},
   
   // Handle errors
   onError: (err, req, res) => {
