@@ -1,0 +1,86 @@
+// Sample Create Policy Payload for Testing
+// Copy this to Swagger/Postman for API testing
+
+[
+  {
+    "identity": {
+      "orderId": "ORD-1704384000000",
+      "sign": "YOUR_SIGN",
+      "branchSign": "",
+      "branchName": "",
+      "reference": "YOUR_REFERENCE",
+      "partnerId": "YOUR_PARTNER_ID"
+    },
+    "selectedPlan": {
+      "insurerId": "INS001",
+      "totalPremium": 15000,
+      "plan": {
+        "sellingPlanId": "PLAN001",
+        "agePremiums": [
+          {
+            "age": 30,
+            "premium": 4439
+          },
+          {
+            "age": 28,
+            "premium": 4200
+          }
+        ],
+        "riders": [
+          {
+            "percent": 10,
+            "riderName": "Adventure Sports",
+            "rateType": "percentage",
+            "riderAmount": 1500
+          },
+          {
+            "percent": 5,
+            "riderName": "Travel Inconvenience",
+            "rateType": "percentage",
+            "riderAmount": 750
+          }
+        ]
+      }
+    },
+    "quotation": {
+      "travelCategory": "Worldwide",
+      "startDate": "2024-01-15",
+      "duration": 10,
+      "endDate": "2024-01-25",
+      "destination": "United States"
+    },
+    "traveler": {
+      "name": "John Doe",
+      "passport": "AB123456",
+      "dob": "1990-01-15",
+      "address": "123 Main Street, Apartment 4B",
+      "mobileNo": "9876543210",
+      "email": "john.doe@example.com",
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "pincode": "400001",
+      "country": "India",
+      "preExistingMedicalCondition": "No",
+      "finalPremium": 15000,
+      "riderTotalAmt": 2250,
+      "age": 34,
+      "gender": "male",
+      "nominee": "Jane Doe",
+      "relation": "Spouse",
+      "pastillness": "",
+      "remarks": "Business trip",
+      "emergencyContactPerson": "Jane Doe",
+      "emergencyContactNumber": "9876543211",
+      "emergencyEmailId": "jane.doe@example.com",
+      "gstNumber": "29ABCDE1234F1Z5",
+      "pnrNumber": "ABC123",
+      "gstState": "Maharashtra",
+      "flightNumber": "AI101"
+    },
+    "otherDetails": {
+      "policyComment": "Business trip to US",
+      "universityName": "",
+      "universityAddress": ""
+    }
+  }
+]

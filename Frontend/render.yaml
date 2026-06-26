@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: asego-frontend
+    env: static
+    plan: free
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_ASEGO_API_BASE_URL
+        value: https://your-proxy-service.onrender.com/api
+      - key: VITE_ASEGO_PARTNER_ID
+        value: your_partner_id
+      - key: VITE_ASEGO_SIGN
+        value: your_sign
+      - key: VITE_ASEGO_REFERENCE
+        value: your_reference
+      - key: VITE_ASEGO_ENCRYPTION_KEY
+        value: your_encryption_key
+      - key: VITE_ASEGO_INIT_VECTOR
+        value: your_init_vector
+      - key: VITE_RAZORPAY_KEY_ID
+        value: your_razorpay_key_id
