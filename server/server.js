@@ -1,14 +1,15 @@
 const express = require('express');
+const { createProxyMiddleware, fixRequestBody } = require('http-proxy-middleware');
 const cors = require('cors');
 const app = express();
 
-// Trust Render's load balancer
+// 1. Trust Render's Load Balancer
 app.set('trust proxy', 1);
 
 const PORT = process.env.PORT || 3001;
 const TARGET = process.env.TARGET || 'https://dolphin.asego.in';
 
-// 1. CORS Configuration
+// 2. CORS Configuration (Simplified and Safe)
 const defaultAllowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
@@ -36,70 +37,67 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With'],
 }));
 
-// 2. PARSE THE BODY NATIVELY
-// We parse the body into a perfect JS object before doing anything else.
+// 3. Body Parsers (MUST be placed BEFORE the proxy for fixRequestBody to work)
 app.use(express.json());
-app.use(express.text());
+app.use(express.text({ type: 'text/plain' }));
 
-// 3. MANUAL FETCH PROXY
-app.all('/api/*', async (req, res) => {
-  try {
-    // Strip /api and append to target (e.g., /api/create -> https://dolphin.asego.in/create)
-    const targetPath = req.originalUrl.replace(/^\/api/, '');
-    const targetUrl = `${TARGET}${targetPath}`;
+// Logging to ensure the server is receiving the request
+app.use((req, res, next) => {
+  console.log(`[INCOMING] ${req.method} ${req.url}`);
+  next();
+});
 
-    console.log(`[PROXYING] ${req.method} to ${targetUrl}`);
+// 4. Proxy Middleware Configuration
+const proxy = createProxyMiddleware({
+  target: TARGET,
+  changeOrigin: true,
+  secure: false,
+  
+  onProxyReq: (proxyReq, req, res) => {
+    // Strip security headers causing CORS drops at the destination
+    proxyReq.removeHeader('origin');
+    proxyReq.removeHeader('referer');
+    proxyReq.removeHeader('sec-ch-ua');
+    proxyReq.removeHeader('sec-ch-ua-mobile');
+    proxyReq.removeHeader('sec-ch-ua-platform');
+    proxyReq.removeHeader('sec-fetch-dest');
+    proxyReq.removeHeader('sec-fetch-mode');
+    proxyReq.removeHeader('sec-fetch-site');
+    
+    proxyReq.setHeader('Accept', 'application/json');
+    proxyReq.setHeader('User-Agent', 'ASEGO-Partner-Client/1.0');
 
-    // Create a fresh, clean set of headers
-    const headers = {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-      'User-Agent': 'ASEGO-Partner-Client/1.0',
-    };
-
-    // Forward Authorization header if your frontend sends it
-    if (req.headers.authorization) {
-      headers['Authorization'] = req.headers.authorization;
+    // THIS IS THE FIX FOR RENDER CORRUPTING THE POST BODY
+    // If there is a body, safely reconstruct it for the Java backend
+    if (req.body && Object.keys(req.body).length > 0) {
+        fixRequestBody(proxyReq, req);
     }
-
-    const fetchOptions = {
-      method: req.method,
-      headers: headers,
-    };
-
-    // Safely attach the body for requests that need it
-    if (['POST', 'PUT', 'PATCH'].includes(req.method) && req.body) {
-      // If it's already an object, stringify it. If it's text, pass it as is.
-      fetchOptions.body = typeof req.body === 'object' ? JSON.stringify(req.body) : req.body;
-      console.log(`[PAYLOAD] Sending data size:`, Buffer.byteLength(fetchOptions.body));
+  },
+  
+  onProxyRes: (proxyRes, req, res) => {
+    console.log(`[RESPONSE] ASEGO returned status: ${proxyRes.statusCode}`);
+  },
+  
+  onError: (err, req, res) => {
+    console.error('[PROXY ERROR]:', err.message);
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Proxy Error', message: err.message });
     }
-
-    // Shoot the request to the Java backend
-    const asegoResponse = await fetch(targetUrl, fetchOptions);
-
-    // Get raw text response to prevent JSON parsing crashes on HTML error pages
-    const responseData = await asegoResponse.text();
-
-    console.log(`[RESPONSE] ASEGO returned ${asegoResponse.status}`);
-
-    // Forward the exact status and data back to your frontend
-    res.status(asegoResponse.status).send(responseData);
-
-  } catch (error) {
-    console.error('[PROXY ERROR]:', error.message);
-    res.status(500).json({ error: 'Manual Proxy Error', message: error.message });
   }
 });
 
-// 4. Health Check Route
+// Attach proxy to API routes
+app.use('/api', proxy);
+
+// Health Check
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok', target: TARGET, mode: 'manual-fetch' });
+  res.status(200).json({ status: 'ok', target: TARGET });
 });
 
-// 5. Start Server
+// Start Server
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`\n========================================`);
-  console.log(`  MANUAL FETCH PROXY RUNNING (RENDER)`);
+  console.log(`  ASEGO PROXY RESTARTED (STABLE)`);
   console.log(`========================================`);
   console.log(`Port: ${PORT}`);
   console.log(`Target: ${TARGET}`);
