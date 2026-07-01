@@ -2,9 +2,14 @@ const express = require('express');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const cors = require('cors');
 const app = express();
+
+// 1. RENDER CONFIGURATION: Trust Render's load balancer
+app.set('trust proxy', 1);
+
 const PORT = process.env.PORT || 3001;
 const TARGET = process.env.TARGET || 'https://dolphin.asego.in';
 
+// 2. CORS CONFIGURATION
 const defaultAllowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
@@ -20,7 +25,7 @@ const configuredOrigins = (process.env.ALLOWED_ORIGINS || '')
 const allowedOrigins = Array.from(new Set([...defaultAllowedOrigins, ...configuredOrigins]));
 
 const isAllowedOrigin = (origin) => {
-  if (!origin) return true; // Allow non-browser clients (like Postman)
+  if (!origin) return true; // Allow non-browser clients
   return allowedOrigins.includes(origin) ||
     origin.startsWith('http://localhost:') ||
     origin.startsWith('http://127.0.0.1:') ||
@@ -28,7 +33,6 @@ const isAllowedOrigin = (origin) => {
     origin.startsWith('https://127.0.0.1:');
 };
 
-// 1. Clean, single CORS implementation
 app.use(cors({
   origin: function (origin, callback) {
     callback(null, isAllowedOrigin(origin));
@@ -38,20 +42,21 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With'],
 }));
 
-// Log all requests
+// Basic request logging (Safe to put before proxy)
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
   next();
 });
 
-// 2. PROXY CONFIGURATION (Must be defined BEFORE body parsers)
+// 3. PROXY CONFIGURATION
+// CRITICAL: This MUST come before express.json() so it streams the raw, untouched body.
 const proxy = createProxyMiddleware({
   target: TARGET,
   changeOrigin: true,
-  secure: false,
+  secure: false, // Set to false to avoid SSL certificate issues between Node and the target
   
   onProxyReq: (proxyReq, req, res) => {
-    // Remove browser-specific headers that cause CORS/Security issues at the target
+    // Strip browser security headers that cause the Java backend to reject the request
     proxyReq.removeHeader('origin');
     proxyReq.removeHeader('referer');
     proxyReq.removeHeader('sec-ch-ua');
@@ -61,13 +66,9 @@ const proxy = createProxyMiddleware({
     proxyReq.removeHeader('sec-fetch-mode');
     proxyReq.removeHeader('sec-fetch-site');
     
-    // Set proper headers for ASEGO API
+    // Force backend to treat this as a standard API request, just like Swagger
     proxyReq.setHeader('Accept', 'application/json');
     proxyReq.setHeader('User-Agent', 'ASEGO-Partner-Client/1.0');
-
-    // Notice we DO NOT manually write the body here anymore.
-    // Because express.json() hasn't consumed the stream yet, 
-    // the proxy will natively pass the raw payload exactly as Swagger does.
   },
   
   onProxyRes: (proxyRes, req, res) => {
@@ -76,31 +77,40 @@ const proxy = createProxyMiddleware({
   
   onError: (err, req, res) => {
     console.error('Proxy Error:', err.message);
-    res.status(500).json({
-      error: 'Proxy Error',
-      message: err.message
-    });
+    if (!res.headersSent) {
+      res.status(500).json({
+        error: 'Proxy Error',
+        message: err.message
+      });
+    }
   }
 });
 
-// 3. Attach proxy to /api route FIRST
+// Attach proxy to the /api route
 app.use('/api', proxy);
 
-// 4. Attach body parsers AFTER the proxy 
-// (This ensures local routes like /health can parse JSON, but the proxy is untouched)
+// 4. BODY PARSERS
+// Placed AFTER the proxy. The proxy handles its own stream. 
+// These parsers will only apply to routes defined below this line (like /health).
 app.use(express.json());
 app.use(express.text({ type: 'text/plain' }));
 
+// 5. LOCAL ROUTES
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok', target: TARGET });
+  res.status(200).json({ 
+    status: 'ok', 
+    target: TARGET,
+    environment: 'render' 
+  });
 });
 
+// 6. SERVER START
+// '0.0.0.0' is explicitly required by Render to expose the port correctly
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`\n========================================`);
   console.log(`  ASEGO API Proxy Server Running`);
   console.log(`========================================`);
   console.log(`Proxy URL: http://0.0.0.0:${PORT}`);
   console.log(`Target API: ${TARGET}`);
-  console.log(`CORS Enabled: ${allowedOrigins.join(', ')}`);
   console.log(`========================================\n`);
 });
