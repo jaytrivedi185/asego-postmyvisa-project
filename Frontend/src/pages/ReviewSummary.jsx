@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { createPolicy } from '../services/policyApi';
 import { buildCreatePolicyPayload } from '../utils/buildEndorsePolicyPayload';
 import { ASEGO_CONFIG } from '../config/asego';
-import { initiateRazorpayPayment } from '../services/razorpayService';
+import { initiatePayuPayment } from '../services/payuService';
 import Navbar from '../components/Navbar';
 
 const ReviewSummary = () => {
@@ -39,36 +39,32 @@ const ReviewSummary = () => {
 
   const handlePayment = async () => {
     if (!isAccepted) return;
-    
     setIsProcessingPayment(true);
 
     try {
       const primaryTraveler = travelerDetails?.travelers?.[0] || {};
-      const contactDetails = travelerDetails?.contact || {};
+      const contactDetails  = travelerDetails?.contact || {};
 
-      await initiateRazorpayPayment({
-        amount: finalPremium,
-        name: primaryTraveler.name || contactDetails.name || 'Customer',
-        email: contactDetails.email,
-        contact: contactDetails.mobile,
+      // Save plan + premium data to sessionStorage so PaymentSuccess page can read it after redirect
+      sessionStorage.setItem('selectedPlan',    JSON.stringify(selectedPlan));
+      sessionStorage.setItem('selectedRiders',  JSON.stringify(selectedRiders));
+      sessionStorage.setItem('premiumData',     JSON.stringify({ finalPremium, basePremium, riderTotal }));
+
+      // Also persist selectedCategory in case it was loaded from sessionStorage earlier
+      const selectedCategoryStr = sessionStorage.getItem('selectedCategory');
+      // (already in sessionStorage from the category selection step — no action needed)
+
+      await initiatePayuPayment({
+        amount:      finalPremium,
+        name:        primaryTraveler.name || contactDetails.name || 'Customer',
+        email:       contactDetails.email,
+        contact:     contactDetails.mobile,
         description: `Travel Insurance - ${selectedPlan.planDisplayName}`,
-        onSuccess: (paymentResponse) => {
-          console.log('✅ Payment Successful:', paymentResponse);
-          setPaymentDetails(paymentResponse);
-          setPaymentCompleted(true);
-          setIsProcessingPayment(false);
-          handleCreatePolicy(paymentResponse);
-        },
-        onFailure: (error) => {
-          console.error('❌ Payment Failed:', error);
-          alert(`Payment failed: ${error.message}`);
-          setIsProcessingPayment(false);
-        },
       });
+      // Page will redirect to PayU — code below won't run
     } catch (error) {
-      console.error('❌ Payment Error:', error);
-      alert(`Error: ${error.message}`);
       setIsProcessingPayment(false);
+      alert(`Error initiating payment: ${error.message}`);
     }
   };
 

@@ -1,6 +1,8 @@
+require('dotenv').config();
 const express = require('express');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const cors = require('cors');
+const crypto = require('crypto');
 const app = express();
 const PORT = process.env.PORT || 3001;
 const TARGET = process.env.TARGET || 'https://dolphin.asego.in';
@@ -61,6 +63,7 @@ app.options('*', cors({
 // Parse JSON bodies
 app.use(express.json());
 app.use(express.text({ type: 'text/plain' }));
+app.use(express.urlencoded({ extended: true }));
 
 // Log all requests
 app.use((req, res, next) => {
@@ -135,6 +138,44 @@ const proxy = createProxyMiddleware({
 
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', target: TARGET });
+});
+
+// ── PayU Response Relay Endpoints ───────────────────────────────────────────
+// PayU POSTs to surl/furl — we convert POST body to GET redirect so the React
+// frontend (SPA) can read the params from window.location.search
+const FRONTEND_BASE_URL = process.env.FRONTEND_BASE_URL || 'http://localhost:5173';
+
+app.post('/payu/success', (req, res) => {
+  const params = new URLSearchParams(req.body).toString();
+  res.redirect(`${FRONTEND_BASE_URL}/payment-success?${params}`);
+});
+
+app.post('/payu/failure', (req, res) => {
+  const params = new URLSearchParams(req.body).toString();
+  res.redirect(`${FRONTEND_BASE_URL}/payment-failure?${params}`);
+});
+
+// ── PayU Hash Generation Endpoint ────────────────────────────────────────────
+// PayU hash formula: SHA512(key|txnid|amount|productinfo|firstname|email|||||||||||salt)
+app.post('/payu/hash', (req, res) => {
+  const salt = process.env.PAYU_MERCHANT_SALT;
+  const key  = process.env.PAYU_MERCHANT_KEY;
+
+  if (!salt || !key) {
+    return res.status(500).json({ message: 'PayU credentials not configured on server.' });
+  }
+
+  const { txnid, amount, productinfo, firstname, email } = req.body;
+
+  if (!txnid || !amount || !productinfo || !firstname || !email) {
+    return res.status(400).json({ message: 'Missing required hash fields.' });
+  }
+
+  // PayU hash string: key|txnid|amount|productinfo|firstname|email|udf1|udf2|udf3|udf4|udf5||||||salt
+  const hashString = `${key}|${txnid}|${amount}|${productinfo}|${firstname}|${email}|||||||||||${salt}`;
+  const hash = crypto.createHash('sha512').update(hashString).digest('hex');
+
+  res.json({ hash });
 });
 
 app.use('/api', proxy);

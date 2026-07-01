@@ -96,7 +96,7 @@ export default function PolicySuccess() {
                     )}
                     <div className="flex justify-between">
                       <span className="text-white/60">Payment ID:</span>
-                      <span className="text-white font-mono text-xs">{paymentDetails.paymentId}</span>
+                      <span className="text-white font-mono text-xs">{paymentDetails.mihpayId || paymentDetails.txnId}</span>
                     </div>
                   </div>
                 </div>
