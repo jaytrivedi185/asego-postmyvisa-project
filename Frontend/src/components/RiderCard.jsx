@@ -39,7 +39,7 @@ export default function RiderCard({ rider, isSelected, riderCost, basePremium, o
                 {rider.riderName}
               </h3>
               {coverage.name && coverage.name !== rider.riderName && (
-                <p className="text-white/40 text-xs mt-0.5 truncate">{coverage.name}</p>
+                <p className="text-white/65 text-xs mt-0.5 truncate">{coverage.name}</p>
               )}
             </div>
           </div>
@@ -61,26 +61,26 @@ export default function RiderCard({ rider, isSelected, riderCost, basePremium, o
         <div className="grid grid-cols-2 gap-2 mb-4">
           {coverage.maxAmount && (
             <div className="rounded-xl bg-white/[0.04] border border-white/8 px-3 py-2.5">
-              <p className="text-white/35 text-[9px] uppercase tracking-widest font-semibold mb-0.5">Coverage</p>
-              <p className="text-white/85 text-xs font-bold">₹{fmt(coverage.maxAmount)}</p>
+              <p className="text-white/65 text-[9px] uppercase tracking-widest font-semibold mb-0.5">Coverage</p>
+              <p className="text-white text-xs font-bold">₹{fmt(coverage.maxAmount)}</p>
             </div>
           )}
           {coverage.deductibles && coverage.deductibles !== '-' && (
             <div className="rounded-xl bg-white/[0.04] border border-white/8 px-3 py-2.5">
-              <p className="text-white/35 text-[9px] uppercase tracking-widest font-semibold mb-0.5">Deductible</p>
-              <p className="text-white/85 text-xs font-bold">{coverage.deductibles}</p>
+              <p className="text-white/65 text-[9px] uppercase tracking-widest font-semibold mb-0.5">Deductible</p>
+              <p className="text-white text-xs font-bold">{coverage.deductibles}</p>
             </div>
           )}
           {(detail.minAge != null && detail.maxAge != null) && (
             <div className="rounded-xl bg-white/[0.04] border border-white/8 px-3 py-2.5">
-              <p className="text-white/35 text-[9px] uppercase tracking-widest font-semibold mb-0.5">Age</p>
-              <p className="text-white/85 text-xs font-bold">{detail.minAge} – {detail.maxAge} yrs</p>
+              <p className="text-white/65 text-[9px] uppercase tracking-widest font-semibold mb-0.5">Age</p>
+              <p className="text-white text-xs font-bold">{detail.minAge} – {detail.maxAge} yrs</p>
             </div>
           )}
           {(detail.minDays != null && detail.maxDays != null) && (
             <div className="rounded-xl bg-white/[0.04] border border-white/8 px-3 py-2.5">
-              <p className="text-white/35 text-[9px] uppercase tracking-widest font-semibold mb-0.5">Trip Days</p>
-              <p className="text-white/85 text-xs font-bold">{detail.minDays} – {detail.maxDays} days</p>
+              <p className="text-white/65 text-[9px] uppercase tracking-widest font-semibold mb-0.5">Trip Days</p>
+              <p className="text-white text-xs font-bold">{detail.minDays} – {detail.maxDays} days</p>
             </div>
           )}
         </div>
@@ -91,24 +91,24 @@ export default function RiderCard({ rider, isSelected, riderCost, basePremium, o
             ? 'bg-gold/10 border-gold/30'
             : 'bg-white/[0.03] border-white/8 group-hover:border-gold/15'}`}>
           <div>
-            <p className="text-white/35 text-[9px] uppercase tracking-widest font-semibold">Add-on Premium</p>
+            <p className="text-white/65 text-[9px] uppercase tracking-widest font-semibold">Add-on Premium</p>
             {basePremium != null ? (
-              <p className={`text-lg font-bold ${isSelected ? 'text-gold' : 'text-white/90'}`}>
+              <p className={`text-lg font-bold ${isSelected ? 'text-gold' : 'text-white'}`}>
                 + ₹{fmt(riderCost)}
               </p>
             ) : (
-              <p className="text-white/35 text-xs">Calculated on base premium</p>
+              <p className="text-white/60 text-xs">Calculated on base premium</p>
             )}
           </div>
-          <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border
-            ${isSelected ? 'bg-gold text-navy border-gold' : 'bg-gold/10 text-gold border-gold/20'}`}>
+          <span className={`px-3 py-1.5 rounded-full text-xs font-bold border
+            ${isSelected ? 'bg-gold text-navy border-gold' : 'bg-gold/20 text-gold border-gold/40'}`}>
             +{landingPer}%
           </span>
         </div>
 
         {/* Add Rider label */}
         <p className={`mt-3 text-center text-xs font-semibold transition-colors
-          ${isSelected ? 'text-gold' : 'text-white/30 group-hover:text-white/50'}`}>
+          ${isSelected ? 'text-gold' : 'text-white/55 group-hover:text-white/80'}`}>
           {isSelected ? '✓ Added to your plan' : 'Click to add this rider'}
         </p>
       </div>
