@@ -3,7 +3,7 @@ const { createProxyMiddleware } = require('http-proxy-middleware');
 const cors = require('cors');
 const app = express();
 
-// 1. RENDER FIX: This is the ONLY thing your original code was missing for production
+// 1. RENDER FIX: Required for cloud load balancers
 app.set('trust proxy', 1);
 
 const PORT = process.env.PORT || 3001;
@@ -37,24 +37,21 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With'],
 }));
 
-// 3. PARSERS (Restoring your original setup)
-// We MUST use express.text so your encrypted string isn't destroyed
-app.use(express.json());
-app.use(express.text({ type: 'text/plain', limit: '10mb' }));
-
+// Basic Logging (Safe, doesn't touch the body)
 app.use((req, res, next) => {
   console.log(`[INCOMING] ${req.method} ${req.url}`);
   next();
 });
 
-// 4. PROXY CONFIGURATION
+// 3. THE DUMB PIPE PROXY
+// CRITICAL: This is mounted BEFORE any body parsers. Node will not touch the payload.
 const proxy = createProxyMiddleware({
   target: TARGET,
   changeOrigin: true,
   secure: false,
   
   onProxyReq: (proxyReq, req, res) => {
-    // Strip headers
+    // Only strip headers that cause CORS drops at ASEGO
     proxyReq.removeHeader('origin');
     proxyReq.removeHeader('referer');
     proxyReq.removeHeader('sec-ch-ua');
@@ -64,27 +61,13 @@ const proxy = createProxyMiddleware({
     proxyReq.removeHeader('sec-fetch-mode');
     proxyReq.removeHeader('sec-fetch-site');
     
+    // We DO NOT set 'Content-Type' or 'Accept' here manually anymore.
+    // Whatever your React app sends (text/plain or application/json), 
+    // it will pass through natively.
     proxyReq.setHeader('User-Agent', 'ASEGO-Partner-Client/1.0');
 
-    // REINSTATING YOUR ORIGINAL WORKING LOGIC
-    if (['POST', 'PUT', 'PATCH'].includes(req.method) && req.body) {
-      let bodyData;
-      
-      // If your frontend sends the encrypted string as text/plain, pass it EXACTLY as is
-      if (req.headers['content-type'] === 'text/plain') {
-        bodyData = req.body;
-        proxyReq.setHeader('Content-Type', 'text/plain');
-        proxyReq.setHeader('Accept', 'text/plain, application/json');
-      } else {
-        // Fallback for standard JSON (like getting plans)
-        bodyData = typeof req.body === 'object' ? JSON.stringify(req.body) : req.body;
-        proxyReq.setHeader('Content-Type', 'application/json');
-        proxyReq.setHeader('Accept', 'application/json');
-      }
-      
-      proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
-      proxyReq.write(bodyData);
-    }
+    // WE DO NOT REBUILD THE BODY. 
+    // The native HTTP stream handles it automatically.
   },
   
   onProxyRes: (proxyRes, req, res) => {
@@ -99,7 +82,13 @@ const proxy = createProxyMiddleware({
   }
 });
 
+// Attach proxy FIRST
 app.use('/api', proxy);
+
+// 4. BODY PARSERS (For local routes only)
+// Because the proxy is above this, these parsers will NEVER touch the ASEGO requests.
+app.use(express.json());
+app.use(express.text({ type: 'text/plain' }));
 
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', target: TARGET });
@@ -107,7 +96,7 @@ app.get('/health', (req, res) => {
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`\n========================================`);
-  console.log(`  ASEGO PROXY RUNNING (ENCRYPTION SAFE)`);
+  console.log(`  ASEGO PROXY RUNNING (DUMB PIPE MODE)`);
   console.log(`========================================`);
   console.log(`Port: ${PORT}`);
   console.log(`========================================\n`);
