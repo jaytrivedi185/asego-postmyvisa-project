@@ -1,15 +1,14 @@
 const express = require('express');
-const { createProxyMiddleware, fixRequestBody } = require('http-proxy-middleware');
+const { createProxyMiddleware } = require('http-proxy-middleware');
 const cors = require('cors');
 const app = express();
 
-// 1. Trust Render's Load Balancer
+// RENDER FIX: Tell Express it is behind Render's load balancer
 app.set('trust proxy', 1);
 
 const PORT = process.env.PORT || 3001;
 const TARGET = process.env.TARGET || 'https://dolphin.asego.in';
 
-// 2. CORS Configuration (Simplified and Safe)
 const defaultAllowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
@@ -24,37 +23,39 @@ const configuredOrigins = (process.env.ALLOWED_ORIGINS || '')
 
 const allowedOrigins = Array.from(new Set([...defaultAllowedOrigins, ...configuredOrigins]));
 
+const isAllowedOrigin = (origin) => {
+  if (!origin) return true; // Allow non-browser clients (like Postman)
+  return allowedOrigins.includes(origin) ||
+    origin.startsWith('http://localhost:') ||
+    origin.startsWith('http://127.0.0.1:') ||
+    origin.startsWith('https://localhost:') ||
+    origin.startsWith('https://127.0.0.1:');
+};
+
+// 1. Clean, single CORS implementation
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin) || origin.startsWith('http://localhost:')) {
-      callback(null, true);
-    } else {
-      callback(null, false);
-    }
+    callback(null, isAllowedOrigin(origin));
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With'],
 }));
 
-// 3. Body Parsers (MUST be placed BEFORE the proxy for fixRequestBody to work)
-app.use(express.json());
-app.use(express.text({ type: 'text/plain' }));
-
-// Logging to ensure the server is receiving the request
+// Log all requests
 app.use((req, res, next) => {
-  console.log(`[INCOMING] ${req.method} ${req.url}`);
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
   next();
 });
 
-// 4. Proxy Middleware Configuration
+// 2. PROXY CONFIGURATION (Must be defined BEFORE body parsers)
 const proxy = createProxyMiddleware({
   target: TARGET,
   changeOrigin: true,
   secure: false,
   
   onProxyReq: (proxyReq, req, res) => {
-    // Strip security headers causing CORS drops at the destination
+    // Remove browser-specific headers that cause CORS/Security issues at the target
     proxyReq.removeHeader('origin');
     proxyReq.removeHeader('referer');
     proxyReq.removeHeader('sec-ch-ua');
@@ -64,42 +65,42 @@ const proxy = createProxyMiddleware({
     proxyReq.removeHeader('sec-fetch-mode');
     proxyReq.removeHeader('sec-fetch-site');
     
+    // Set proper headers for ASEGO API
     proxyReq.setHeader('Accept', 'application/json');
     proxyReq.setHeader('User-Agent', 'ASEGO-Partner-Client/1.0');
-
-    // THIS IS THE FIX FOR RENDER CORRUPTING THE POST BODY
-    // If there is a body, safely reconstruct it for the Java backend
-    if (req.body && Object.keys(req.body).length > 0) {
-        fixRequestBody(proxyReq, req);
-    }
   },
   
   onProxyRes: (proxyRes, req, res) => {
-    console.log(`[RESPONSE] ASEGO returned status: ${proxyRes.statusCode}`);
+    console.log(`Response from ASEGO: ${proxyRes.statusCode}`);
   },
   
   onError: (err, req, res) => {
-    console.error('[PROXY ERROR]:', err.message);
-    if (!res.headersSent) {
-      res.status(500).json({ error: 'Proxy Error', message: err.message });
-    }
+    console.error('Proxy Error:', err.message);
+    res.status(500).json({
+      error: 'Proxy Error',
+      message: err.message
+    });
   }
 });
 
-// Attach proxy to API routes
+// 3. Attach proxy to /api route FIRST
 app.use('/api', proxy);
 
-// Health Check
+// 4. Attach body parsers AFTER the proxy 
+// (This ensures local routes like /health can parse JSON, but the proxy is untouched)
+app.use(express.json());
+app.use(express.text({ type: 'text/plain' }));
+
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', target: TARGET });
 });
 
-// Start Server
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`\n========================================`);
-  console.log(`  ASEGO PROXY RESTARTED (STABLE)`);
+  console.log(`  ASEGO API Proxy Server Running`);
   console.log(`========================================`);
-  console.log(`Port: ${PORT}`);
-  console.log(`Target: ${TARGET}`);
+  console.log(`Proxy URL: http://0.0.0.0:${PORT}`);
+  console.log(`Target API: ${TARGET}`);
+  console.log(`CORS Enabled: ${allowedOrigins.join(', ')}`);
   console.log(`========================================\n`);
 });
