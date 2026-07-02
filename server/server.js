@@ -51,7 +51,7 @@ const proxy = createProxyMiddleware({
   secure: false,
   
   onProxyReq: (proxyReq, req, res) => {
-    // Only strip headers that cause CORS drops at ASEGO
+    // Strip standard browser headers
     proxyReq.removeHeader('origin');
     proxyReq.removeHeader('referer');
     proxyReq.removeHeader('sec-ch-ua');
@@ -61,13 +61,13 @@ const proxy = createProxyMiddleware({
     proxyReq.removeHeader('sec-fetch-mode');
     proxyReq.removeHeader('sec-fetch-site');
     
-    // We DO NOT set 'Content-Type' or 'Accept' here manually anymore.
-    // Whatever your React app sends (text/plain or application/json), 
-    // it will pass through natively.
+    // CRITICAL FIX: Strip Render's cloud tracking headers that crash ASEGO's database logs
+    proxyReq.removeHeader('x-forwarded-for');
+    proxyReq.removeHeader('x-forwarded-proto');
+    proxyReq.removeHeader('x-forwarded-host');
+    proxyReq.removeHeader('x-real-ip');
+    
     proxyReq.setHeader('User-Agent', 'ASEGO-Partner-Client/1.0');
-
-    // WE DO NOT REBUILD THE BODY. 
-    // The native HTTP stream handles it automatically.
   },
   
   onProxyRes: (proxyRes, req, res) => {
