@@ -44,7 +44,7 @@ export default function TravelerFormCard({ index, data, errors, onChange }) {
         <div>
           <p className="text-[rgba(0,41,98,1)] font-bold text-sm">Traveller {index + 1}</p>
           {data.dob && (
-            <p className="text-white/35 text-xs mt-0.5">
+            <p className="text-[rgba(0,41,98,0.55)] text-xs mt-0.5">
               DOB: {fmtDob(data.dob)}&nbsp;·&nbsp;Age: {data.age} yrs
             </p>
           )}
@@ -52,10 +52,10 @@ export default function TravelerFormCard({ index, data, errors, onChange }) {
         {data.age != null && (
           <span className={`ml-auto px-2.5 py-1 rounded-full text-[10px] font-bold border shrink-0
             ${data.age < 18
-              ? 'bg-emerald-500/10 border-emerald-400/20 text-emerald-300'
+              ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-700'
               : data.age >= 60
-              ? 'bg-amber-500/10 border-amber-400/20 text-amber-300'
-              : 'bg-gold/10 border-gold/20 text-gold/80'}`}>
+              ? 'bg-amber-500/15 border-amber-500/40 text-amber-700'
+              : 'bg-gold/15 border-gold/40 text-[rgba(0,41,98,0.85)]'}`}>
             {data.age} yrs
           </span>
         )}
@@ -95,7 +95,7 @@ export default function TravelerFormCard({ index, data, errors, onChange }) {
             type="text"
             value={fmtDob(data.dob)}
             readOnly
-            className="w-full bg-white/[0.02] border border-white/8 rounded-xl px-4 py-3 text-white/50 text-sm cursor-not-allowed"
+            className="w-full bg-[rgba(0,41,98,0.03)] border border-[rgba(0,41,98,0.12)] rounded-xl px-4 py-3 text-[rgba(0,41,98,0.65)] text-sm cursor-not-allowed"
           />
         </div>
 
@@ -106,7 +106,7 @@ export default function TravelerFormCard({ index, data, errors, onChange }) {
             type="text"
             value={data.age != null ? `${data.age} years` : '—'}
             readOnly
-            className="w-full bg-white/[0.02] border border-white/8 rounded-xl px-4 py-3 text-white/50 text-sm cursor-not-allowed"
+            className="w-full bg-[rgba(0,41,98,0.03)] border border-[rgba(0,41,98,0.12)] rounded-xl px-4 py-3 text-[rgba(0,41,98,0.65)] text-sm cursor-not-allowed"
           />
         </div>
 
@@ -125,8 +125,8 @@ export default function TravelerFormCard({ index, data, errors, onChange }) {
                     : 'bg-[rgba(0,41,98,0.04)] text-[rgba(0,41,98,0.7)] border-[rgba(0,41,98,0.10)] hover:border-gold/40 hover:text-gold'}`}
               >
                 <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0
-                  ${data.gender === g ? 'border-navy' : 'border-white/30'}`}>
-                  {data.gender === g && <span className="w-1.5 h-1.5 rounded-full bg-navy" />}
+                  ${data.gender === g ? 'border-navy bg-navy/10' : 'border-[rgba(0,41,98,0.45)] bg-[rgba(0,41,98,0.06)]'}`}>
+                  {data.gender === g && <span className="w-2 h-2 rounded-full bg-navy" />}
                 </span>
                 {g}
               </button>

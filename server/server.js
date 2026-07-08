@@ -38,10 +38,21 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With'],
 }));
+app.options('*', cors({
+  origin: function (origin, callback) {
+    callback(null, isAllowedOrigin(origin));
+  },
+  credentials: true,
+}));
+
+// Parse JSON bodies
+app.use(express.json());
+app.use(express.text({ type: 'text/plain' }));
+app.use(express.urlencoded({ extended: true }));
 
 // Basic Logging (Safe, doesn't touch the body)
 app.use((req, res, next) => {
-  console.log(`[INCOMING] ${req.method} ${req.url}`);
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
   next();
 });
 
@@ -69,12 +80,33 @@ const proxy = createProxyMiddleware({
     proxyReq.removeHeader('x-forwarded-host');
     proxyReq.removeHeader('x-real-ip');
     
-    proxyReq.setHeader('User-Agent', 'ASEGO-Partner-Client/1.0');
+    // Handle request body for POST requests
+    if (req.method === 'POST' && req.body) {
+      let bodyData;
+      
+      // Check content type and prepare body accordingly
+      if (req.headers['content-type'] === 'application/json') {
+        bodyData = JSON.stringify(req.body);
+        proxyReq.setHeader('Content-Type', 'application/json');
+      } else if (req.headers['content-type'] === 'text/plain') {
+        bodyData = req.body;
+        proxyReq.setHeader('Content-Type', 'text/plain');
+      } else {
+        bodyData = JSON.stringify(req.body);
+        proxyReq.setHeader('Content-Type', 'application/json');
+      }
+      
+      // Update content-length
+      proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
+      
+      // Write body to proxy request
+      proxyReq.write(bodyData);
+      
+
+    }
   },
   
-  onProxyRes: (proxyRes, req, res) => {
-    console.log(`[ASEGO RESPONSE] Status: ${proxyRes.statusCode}`);
-  },
+  onProxyRes: (proxyRes, req, res) => {},
   
   onError: (err, req, res) => {
     console.error('[PROXY ERROR]:', err.message);

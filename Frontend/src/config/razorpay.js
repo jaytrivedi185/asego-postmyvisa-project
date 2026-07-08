@@ -1,5 +1,4 @@
-// Razorpay Configuration
-export const RAZORPAY_CONFIG = {
-  keyId: import.meta.env.VITE_RAZORPAY_KEY_ID || "YOUR_RAZORPAY_KEY_ID", // Replace with your actual Razorpay Key ID
-  keySecret: "YOUR_RAZORPAY_KEY_SECRET" // Keep this secure, never expose in frontend
-};
+// Razorpay has been replaced by PayU Live payment gateway.
+// This file is kept to prevent import errors from any stale references.
+// Do NOT use Razorpay in this project.
+export const RAZORPAY_CONFIG = {};

@@ -6,6 +6,8 @@ import AddonsSelection from './pages/AddonsSelection';
 import TravelerDetails from './pages/TravelerDetails';
 import ReviewSummary from './pages/ReviewSummary';
 import PolicySuccess from './pages/PolicySuccess';
+import PaymentSuccess from './pages/PaymentSuccess';
+import PaymentFailure from './pages/PaymentFailure';
 import EndorsePolicy from './pages/EndorsePolicy';
 import EndorseSuccess from './pages/EndorseSuccess';
 
@@ -19,6 +21,8 @@ function App() {
         <Route path="/traveler-details" element={<TravelerDetails />} />
         <Route path="/review-summary" element={<ReviewSummary />} />
         <Route path="/policy-success" element={<PolicySuccess />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
+        <Route path="/payment-failure" element={<PaymentFailure />} />
         <Route path="/endorse-policy" element={<EndorsePolicy />} />
         <Route path="/endorse-success" element={<EndorseSuccess />} />
       </Routes>

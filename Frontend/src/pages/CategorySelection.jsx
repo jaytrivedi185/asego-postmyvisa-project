@@ -36,6 +36,14 @@ const GLOBAL_STYLES = `
     outline: 2px solid #FAC74D;
     outline-offset: 2px;
   }
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1) sepia(1) saturate(3) hue-rotate(5deg) brightness(1.1);
+    opacity: 0.75;
+    cursor: pointer;
+  }
+  input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+  }
   @media (prefers-reduced-motion: reduce) {
     .panel-rise { animation: none; opacity: 1; }
     .horizon-line { animation: none; }
@@ -146,7 +154,7 @@ const Icon = {
    Shared primitives
    --------------------------------------------------------------------- */
 const FieldLabel = ({ children, htmlFor }) => (
-  <label htmlFor={htmlFor} className="text-white/50 text-xs font-semibold uppercase tracking-[0.15em] mb-2 block">
+  <label htmlFor={htmlFor} className="text-white/70 text-xs font-semibold uppercase tracking-[0.15em] mb-2 block">
     {children}
   </label>
 );
@@ -159,7 +167,7 @@ const ErrorText = ({ children }) => (
 );
 
 const inputBase =
-  'w-full bg-white/[0.05] border border-white/10 rounded-xl px-4 py-3.5 text-white text-sm placeholder-white/25 outline-none focus:border-gold/60 focus:bg-white/[0.07] transition-colors duration-200';
+  'w-full bg-white/[0.06] border border-white/15 rounded-xl px-4 py-3.5 text-white text-sm placeholder-white/30 outline-none focus:border-gold/70 focus:bg-white/[0.09] transition-colors duration-200';
 
 /** Numbered badge that resolves into a checkmark — the only place
  *  in the page where sequence is spelled out, because this is a
@@ -178,23 +186,29 @@ const StepBadge = ({ index, complete }) => (
 
 const SectionCard = ({ stepIndex, complete, icon, title, subtitle, accent, children }) => (
   <section
-    className="panel-rise group relative rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:p-6 transition-colors duration-300 hover:border-white/20"
+    className={`panel-rise group relative rounded-2xl border p-5 sm:p-6 transition-colors duration-300 ${
+      complete
+        ? 'border-gold/30 bg-gold/[0.04] hover:border-gold/45'
+        : 'border-white/12 bg-white/[0.03] hover:border-gold/25'
+    }`}
     style={{ animationDelay: `${stepIndex * 90}ms` }}
   >
     <span
       aria-hidden="true"
       className={`absolute left-0 top-5 bottom-5 w-[3px] rounded-full bg-gold transition-opacity duration-300 ${
-        complete ? 'opacity-70' : 'opacity-0 group-focus-within:opacity-40'
+        complete ? 'opacity-80' : 'opacity-0 group-focus-within:opacity-50'
       }`}
     />
     <div className="mb-5 flex items-center gap-3">
       <StepBadge index={stepIndex} complete={complete} />
       <div className="min-w-0">
-        <p className="text-white font-semibold text-sm leading-tight">{title}</p>
-        {subtitle && <p className="text-white/35 text-xs mt-0.5 truncate">{subtitle}</p>}
+        <p className={`font-semibold text-sm leading-tight ${ complete ? 'text-white' : 'text-white/90' }`}>{title}</p>
+        {subtitle && <p className="text-white/50 text-xs mt-0.5 truncate">{subtitle}</p>}
       </div>
       {icon && (
-        <div className="ml-auto hidden h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-gold/10 sm:flex">
+        <div className={`ml-auto flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg transition-colors duration-300 ${
+          complete ? 'bg-gold/20' : 'bg-gold/12'
+        }`}>
           {icon}
         </div>
       )}
@@ -258,7 +272,7 @@ function CountrySearch({ value, onChange }) {
     <div ref={wrapRef} className="relative">
       {/* Input */}
       <div className="relative">
-        <Icon.Globe cls="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gold/50" />
+        <Icon.Globe cls="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gold/70" />
         <input
           ref={inRef}
           type="text"
@@ -469,20 +483,20 @@ export default function CategorySelection() {
       {anyProgress && (
         <div className="border-b border-white/10 bg-navy-light/60">
           <div className="mx-auto flex max-w-3xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3 text-xs sm:px-6">
-            <span className="flex items-center gap-1.5 text-white/70">
-              <Icon.Globe cls="h-3.5 w-3.5 text-gold/70" />
+            <span className="flex items-center gap-1.5 text-white/80">
+              <Icon.Globe cls="h-3.5 w-3.5 text-gold" />
               {destinationValid ? destinationCountry : <span className="text-white/30">Destination pending</span>}
             </span>
             <span className="hidden h-3 w-px bg-white/15 sm:block" aria-hidden="true" />
-            <span className="flex items-center gap-1.5 text-white/70">
-              <Icon.Calendar cls="h-3.5 w-3.5 text-gold/70" />
+            <span className="flex items-center gap-1.5 text-white/80">
+              <Icon.Calendar cls="h-3.5 w-3.5 text-gold" />
               {datesValid
                 ? `${formatDate(startDate)} – ${formatDate(endDate)} · ${days} ${days === 1 ? 'day' : 'days'}`
                 : <span className="text-white/30">Dates pending</span>}
             </span>
             <span className="hidden h-3 w-px bg-white/15 sm:block" aria-hidden="true" />
-            <span className="flex items-center gap-1.5 text-white/70">
-              <Icon.Users cls="h-3.5 w-3.5 text-gold/70" />
+            <span className="flex items-center gap-1.5 text-white/80">
+              <Icon.Users cls="h-3.5 w-3.5 text-gold" />
               {travelerCount
                 ? `${travelerCount} ${travelerCount === 1 ? 'traveller' : 'travellers'}`
                 : <span className="text-white/30">Travellers pending</span>}
@@ -507,9 +521,9 @@ export default function CategorySelection() {
               <FieldLabel htmlFor="destination">Search destination country</FieldLabel>
               <CountrySearch value={destinationCountry} onChange={(c) => setDestinationCountry(c)} />
               {destinationCountry && (
-                <div className="mt-3 flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-gold/[0.07] border border-gold/20">
+                <div className="mt-3 flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-gold/[0.15] border border-gold/40">
                   <Icon.Check cls="h-3.5 w-3.5 text-gold shrink-0" />
-                  <p className="text-gold/80 text-xs font-semibold">{destinationCountry}</p>
+                  <p className="text-gold text-sm font-semibold">{destinationCountry}</p>
                 </div>
               )}
             </SectionCard>
@@ -525,28 +539,34 @@ export default function CategorySelection() {
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <FieldLabel htmlFor="start-date">Start date</FieldLabel>
-                  <input
-                    id="start-date"
-                    type="date"
-                    value={startDate}
-                    min={today}
-                    onChange={(e) => { setStartDate(e.target.value); setEndDate(''); setDateError(''); }}
-                    className={`${inputBase} focus-gold`}
-                    style={{ colorScheme: 'dark' }}
-                  />
+                  <div className="relative">
+                    <Icon.Calendar cls="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gold/70" />
+                    <input
+                      id="start-date"
+                      type="date"
+                      value={startDate}
+                      min={today}
+                      onChange={(e) => { setStartDate(e.target.value); setEndDate(''); setDateError(''); }}
+                      className={`${inputBase} focus-gold pl-11`}
+                      style={{ colorScheme: 'dark' }}
+                    />
+                  </div>
                 </div>
                 <div>
                   <FieldLabel htmlFor="end-date">End date</FieldLabel>
-                  <input
-                    id="end-date"
-                    type="date"
-                    value={endDate}
-                    min={startDate || today}
-                    onChange={(e) => handleEndDate(e.target.value)}
-                    disabled={!startDate}
-                    className={`${inputBase} focus-gold ${dateError ? 'border-[#F0795B]/60 focus:border-[#F0795B]/80' : ''} disabled:cursor-not-allowed disabled:opacity-40`}
-                    style={{ colorScheme: 'dark' }}
-                  />
+                  <div className="relative">
+                    <Icon.Calendar cls="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gold/70" />
+                    <input
+                      id="end-date"
+                      type="date"
+                      value={endDate}
+                      min={startDate || today}
+                      onChange={(e) => handleEndDate(e.target.value)}
+                      disabled={!startDate}
+                      className={`${inputBase} focus-gold pl-11 ${dateError ? 'border-[#F0795B]/60 focus:border-[#F0795B]/80' : ''} disabled:cursor-not-allowed disabled:opacity-40`}
+                      style={{ colorScheme: 'dark' }}
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -617,10 +637,10 @@ export default function CategorySelection() {
                   {birthDates.map((dob, i) => {
                     const age = calcAge(dob);
                     const ageStyle = age === null ? null
-                      : age < 2 ? 'border-sky-400/20 bg-sky-500/10 text-sky-300'
-                      : age < 18 ? 'border-emerald-400/20 bg-emerald-500/10 text-emerald-300'
-                      : age >= 60 ? 'border-amber-400/20 bg-amber-500/10 text-amber-300'
-                      : 'border-gold/20 bg-gold/[0.07] text-gold/80';
+                      : age < 2 ? 'border-sky-400 bg-sky-500/30 text-sky-100 font-bold'
+                      : age < 18 ? 'border-emerald-400 bg-emerald-500/30 text-emerald-100 font-bold'
+                      : age >= 60 ? 'border-amber-400 bg-amber-500/30 text-amber-100 font-bold'
+                      : 'border-gold bg-gold/30 text-white font-bold';
 
                     return (
                       <div
@@ -638,7 +658,7 @@ export default function CategorySelection() {
                           </div>
                           {dob && (
                             <div className="flex items-center gap-2">
-                              <span className="rounded-lg border border-white/10 bg-white/[0.05] px-2.5 py-1 text-[11px] text-white/40">
+                              <span className="rounded-lg border border-white/30 bg-white/[0.15] px-2.5 py-1 text-[11px] text-white font-semibold">
                                 {formatDate(dob)}
                               </span>
                               <span className={`rounded-lg border px-2.5 py-1 text-[11px] font-semibold ${ageStyle}`}>
@@ -648,20 +668,20 @@ export default function CategorySelection() {
                           )}
                         </div>
                         <div className="flex items-center gap-3">
-                          <label htmlFor={`dob-${i}`} className="whitespace-nowrap text-xs text-white/40">
+                          <label htmlFor={`dob-${i}`} className="whitespace-nowrap text-xs text-white/60 font-medium">
                             Date of Birth
                           </label>
                           <input
                             id={`dob-${i}`}
                             type="date"
                             value={dob}
-                            max={today}
+                            max={(() => { const d = new Date(); d.setFullYear(d.getFullYear() - 18); return d.toISOString().split('T')[0]; })()}
                             onChange={(e) => {
                               const updated = [...birthDates];
                               updated[i] = e.target.value;
                               setBirthDates(updated);
                             }}
-                            className="focus-gold flex-1 rounded-lg border border-white/10 bg-white/[0.05] px-3 py-2 text-sm text-white outline-none transition-colors duration-200 focus:border-gold/50 focus:bg-white/[0.07]"
+                            className="focus-gold flex-1 rounded-lg border border-white/15 bg-white/[0.06] px-3 py-2 text-sm text-white outline-none transition-colors duration-200 focus:border-gold/60 focus:bg-white/[0.09]"
                             style={{ colorScheme: 'dark' }}
                           />
                         </div>
@@ -714,7 +734,7 @@ export default function CategorySelection() {
                     <div>
                       <FieldLabel htmlFor="email">Email address</FieldLabel>
                       <div className="relative">
-                        <Icon.Mail cls="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" />
+                        <Icon.Mail cls="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/55" />
                         <input
                           id="email"
                           type="email"
@@ -730,7 +750,7 @@ export default function CategorySelection() {
                     <div>
                       <FieldLabel htmlFor="phone">Phone number</FieldLabel>
                       <div className="relative">
-                        <Icon.Phone cls="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" />
+                        <Icon.Phone cls="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/55" />
                         <input
                           id="phone"
                           type="tel"
@@ -745,8 +765,8 @@ export default function CategorySelection() {
                     </div>
                   </div>
 
-                  <div className="mt-5 flex items-center gap-1.5 text-[11px] text-white/30">
-                    <Icon.Lock cls="h-3 w-3" />
+                  <div className="mt-5 flex items-center gap-1.5 text-[11px] text-white/45">
+                    <Icon.Lock cls="h-3 w-3 text-white/55" />
                     Your details are encrypted and used only to send your policy documents.
                   </div>
 
