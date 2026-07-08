@@ -9,6 +9,6 @@ services:
       - key: NODE_ENV
         value: production
       - key: TARGET
-        value: https://dolphin.asego.in
+        value: https://partner.asego.in
       - key: ALLOWED_ORIGINS
         value: https://insurance.postmyvisa.com,https://www.insurance.postmyvisa.com,http://localhost:5173,http://localhost:3000

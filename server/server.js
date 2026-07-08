@@ -4,50 +4,35 @@ const { createProxyMiddleware } = require('http-proxy-middleware');
 const cors = require('cors');
 const crypto = require('crypto');
 const app = express();
+require('dotenv').config();
+// 1. RENDER FIX: Required for cloud load balancers
+app.set('trust proxy', 1);
+
 const PORT = process.env.PORT || 3001;
-const TARGET = process.env.TARGET || 'https://dolphin.asego.in';
+const TARGET = process.env.TARGET || 'https://partner.asego.in';
+
+// 2. CORS
 const defaultAllowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
   'https://insurance.postmyvisa.com',
   'https://www.insurance.postmyvisa.com',
 ];
+
 const configuredOrigins = (process.env.ALLOWED_ORIGINS || '')
   .split(',')
   .map((origin) => origin.trim())
   .filter(Boolean);
+
 const allowedOrigins = Array.from(new Set([...defaultAllowedOrigins, ...configuredOrigins]));
 
-const isAllowedOrigin = (origin) => {
-  if (!origin) return true;
-  return allowedOrigins.includes(origin) ||
-    origin.startsWith('http://localhost:') ||
-    origin.startsWith('http://127.0.0.1:') ||
-    origin.startsWith('https://localhost:') ||
-    origin.startsWith('https://127.0.0.1:');
-};
-
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (isAllowedOrigin(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin || '*');
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, X-Requested-With');
-    res.setHeader('Vary', 'Origin');
-  }
-
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(204);
-  }
-
-  next();
-});
-
-// Enable CORS for frontend
 app.use(cors({
   origin: function (origin, callback) {
-    callback(null, isAllowedOrigin(origin));
+    if (!origin || allowedOrigins.includes(origin) || origin.startsWith('http://localhost:')) {
+      callback(null, true);
+    } else {
+      callback(null, false);
+    }
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
@@ -65,22 +50,21 @@ app.use(express.json());
 app.use(express.text({ type: 'text/plain' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Log all requests
+// Basic Logging (Safe, doesn't touch the body)
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
   next();
 });
 
-// Proxy configuration
+// 3. THE DUMB PIPE PROXY
+// CRITICAL: This is mounted BEFORE any body parsers. Node will not touch the payload.
 const proxy = createProxyMiddleware({
   target: TARGET,
   changeOrigin: true,
   secure: false,
-  selfHandleResponse: false,
   
-  // Modify request before sending to ASEGO API
   onProxyReq: (proxyReq, req, res) => {
-    // Remove browser-specific headers that cause CORS issues
+    // Strip standard browser headers
     proxyReq.removeHeader('origin');
     proxyReq.removeHeader('referer');
     proxyReq.removeHeader('sec-ch-ua');
@@ -90,9 +74,11 @@ const proxy = createProxyMiddleware({
     proxyReq.removeHeader('sec-fetch-mode');
     proxyReq.removeHeader('sec-fetch-site');
     
-    // Set proper headers for ASEGO API
-    proxyReq.setHeader('Accept', 'application/json');
-    proxyReq.setHeader('User-Agent', 'ASEGO-Partner-Client/1.0');
+    // CRITICAL FIX: Strip Render's cloud tracking headers that crash ASEGO's database logs
+    proxyReq.removeHeader('x-forwarded-for');
+    proxyReq.removeHeader('x-forwarded-proto');
+    proxyReq.removeHeader('x-forwarded-host');
+    proxyReq.removeHeader('x-real-ip');
     
     // Handle request body for POST requests
     if (req.method === 'POST' && req.body) {
@@ -122,19 +108,21 @@ const proxy = createProxyMiddleware({
   
   onProxyRes: (proxyRes, req, res) => {},
   
-  // Handle errors
   onError: (err, req, res) => {
-    console.error('Proxy Error:', err.message);
-    res.status(500).json({
-      error: 'Proxy Error',
-      message: err.message
-    });
-  },
-  
-  onOpen: (proxySocket) => {
-    proxySocket.setTimeout(0);
-  },
+    console.error('[PROXY ERROR]:', err.message);
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Proxy Error', message: err.message });
+    }
+  }
 });
+
+// Attach proxy FIRST
+app.use('/api', proxy);
+
+// 4. BODY PARSERS (For local routes only)
+// Because the proxy is above this, these parsers will NEVER touch the ASEGO requests.
+app.use(express.json());
+app.use(express.text({ type: 'text/plain' }));
 
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', target: TARGET });
@@ -143,7 +131,7 @@ app.get('/health', (req, res) => {
 // ── PayU Response Relay Endpoints ───────────────────────────────────────────
 // PayU POSTs to surl/furl — we convert POST body to GET redirect so the React
 // frontend (SPA) can read the params from window.location.search
-const FRONTEND_BASE_URL = process.env.FRONTEND_BASE_URL || 'http://localhost:5173';
+const FRONTEND_BASE_URL = process.env.FRONTEND_BASE_URL || 'https://insurance.postmyvisa.com';
 
 app.post('/payu/success', (req, res) => {
   const params = new URLSearchParams(req.body).toString();
@@ -182,10 +170,8 @@ app.use('/api', proxy);
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`\n========================================`);
-  console.log(`  ASEGO API Proxy Server Running`);
+  console.log(`  ASEGO PROXY RUNNING (DUMB PIPE MODE)`);
   console.log(`========================================`);
-  console.log(`Proxy URL: http://0.0.0.0:${PORT}`);
-  console.log(`Target API: ${TARGET}`);
-  console.log(`CORS Enabled: ${allowedOrigins.join(', ')}`);
+  console.log(`Port: ${PORT}`);
   console.log(`========================================\n`);
 });
