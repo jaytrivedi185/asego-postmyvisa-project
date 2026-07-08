@@ -5,7 +5,7 @@ import { PAYU_CONFIG } from '../config/payu';
  * Backend endpoint: POST /api/payu/hash
  */
 const getPayuHash = async (hashData) => {
-  const backendUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+  const backendUrl = import.meta.env.VITE_API_BASE_URL || 'https://asego-postmyvisa-project.onrender.com';
   const response = await fetch(`${backendUrl}/payu/hash`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

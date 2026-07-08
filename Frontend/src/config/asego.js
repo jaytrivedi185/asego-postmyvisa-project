@@ -13,4 +13,4 @@ export const ASEGO_CONFIG = {
 
 // Use proxy server to avoid CORS issues
 // Proxy server forwards requests to https://dolphin.asego.in/api
-export const ASEGO_API_BASE_URL = import.meta.env.VITE_ASEGO_API_BASE_URL || "http://localhost:3001/api";
+export const ASEGO_API_BASE_URL = import.meta.env.VITE_ASEGO_API_BASE_URL || "https://asego-postmyvisa-project.onrender.com/api";
