@@ -7,7 +7,7 @@ const app = express();
 app.set('trust proxy', 1);
 
 const PORT = process.env.PORT || 3001;
-const TARGET = process.env.TARGET || 'https://dolphin.asego.in';
+const TARGET = process.env.TARGET || 'https://partner.asego.in';
 
 // 2. CORS
 const defaultAllowedOrigins = [
