@@ -5,7 +5,7 @@ const cors = require('cors');
 const crypto = require('crypto');
 const app = express();
 const PORT = process.env.PORT || 3001;
-const TARGET = process.env.TARGET || 'https://dolphin.asego.in';
+const TARGET = process.env.TARGET || 'https://partner.asego.in';
 const defaultAllowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
