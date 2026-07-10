@@ -5,7 +5,7 @@ import { PAYU_CONFIG } from '../config/payu';
  * Backend endpoint: POST /api/payu/hash
  */
 const getPayuHash = async (hashData) => {
-  const backendUrl = import.meta.env.VITE_API_BASE_URL || 'https://asego-postmyvisa-project.onrender.com';
+  const backendUrl = (import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_ASEGO_API_BASE_URL || 'https://asego-postmyvisa-project.onrender.com').replace(/\/api$/, '');
   const response = await fetch(`${backendUrl}/payu/hash`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -35,6 +35,10 @@ export const initiatePayuPayment = async ({
 }) => {
   // Build txnid — unique per transaction
   const transactionId = txnId || `PMV${Date.now()}${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
+
+  if (!PAYU_CONFIG.merchantKey) {
+    throw new Error('PayU merchant key is missing. Please set VITE_PAYU_MERCHANT_KEY in the frontend environment.');
+  }
 
   const productInfo = description || 'Travel Insurance Premium';
   const amountStr = parseFloat(amount).toFixed(2);
